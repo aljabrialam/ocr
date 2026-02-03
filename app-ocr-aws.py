@@ -37,7 +37,7 @@ except KeyError:
     print("Set them before running this sample.")
     exit()
 
-title = '<p style="font-size: 40px;font-weight: 550;"> AWS Textract - Extract Text via Images</p>'
+title = '<p style="font-size: 40px;font-weight: 550;"> AWS AI Textract - Extract Text via Images</p>'
 st.markdown(title, unsafe_allow_html=True)
 
 st.image("./assets/textract.png")
