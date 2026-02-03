@@ -49,6 +49,11 @@ aws_management_console = boto3.session.Session(
     region_name=region_name  # Replace with your desired region
 )
 
+comprehend_client = aws_management_console.client(
+    service_name='comprehend',
+    region_name='ap-southeast-1'
+)
+
 client = aws_management_console.client(service_name='textract', region_name='ap-southeast-1')
 
 # Create S3 client
@@ -69,6 +74,7 @@ def extract_text_from_image(image):
     # Display the extracted text
     st.subheader("Extracted Text")
     st.write(text)
+    analyze_text_with_comprehend(text)
     download_text(text)
 
 
@@ -131,6 +137,7 @@ def extract_text_from_pdf(pdf_bytes, pdf_filename):
             text = "\n".join(text_blocks)
             st.success("Text extracted from PDF:")
             st.write(text)
+            analyze_text_with_comprehend(text)
             download_text(text)
         else:
             st.warning("No text found in the PDF.")
@@ -174,6 +181,49 @@ text_analytics_client = TextAnalyticsClient(
             endpoint=endpoint, 
             credential=AzureKeyCredential(key)
 )
+
+def analyze_text_with_comprehend(text):
+    st.subheader("Detected Entities (Amazon Comprehend)")
+
+    try:
+        entities_response = comprehend_client.detect_entities(
+            Text=text,
+            LanguageCode="en"
+        )
+
+        for entity in entities_response["Entities"]:
+            st.write(
+                f"**{entity['Text']}** → "
+                f"{entity['Type']} "
+                f"(Confidence: {round(entity['Score'], 2)})"
+            )
+
+    except Exception as e:
+        st.error(f"Entity detection error: {e}")
+
+    st.subheader("Detected PII (Amazon Comprehend)")
+
+    try:
+        pii_response = comprehend_client.detect_pii_entities(
+            Text=text,
+            LanguageCode="en"
+        )
+
+        if not pii_response["Entities"]:
+            st.info("No PII detected.")
+            return
+
+        for pii in pii_response["Entities"]:
+            detected_text = text[pii["BeginOffset"]:pii["EndOffset"]]
+            st.write(
+                f"**{detected_text}** → "
+                f"{pii['Type']} "
+                f"(Confidence: {round(pii['Score'], 2)})"
+            )
+
+    except Exception as e:
+        st.error(f"PII detection error: {e}")
+
 
 # Example method for detecting sensitive information (PII) from text in images 
 def pii_recognition(file):
