@@ -227,88 +227,88 @@ text_analytics_client = TextAnalyticsClient(
 )
 
 # Example method for detecting sensitive information (PII) from text in images 
-def pii_recognition(file):
+# def pii_recognition(file):
 
-    #Get text from the image using Image Analysis OCR
-    # ocr_result = image_analysis_client.analyze_from_url(
-    # image_url="https://www.asianbusinesscards.com/wp-content/uploads/2019/03/chinese-business-card-translation-samples-stanford-445-sch.jpg",
-    # visual_features=[VisualFeatures.READ])
+#     #Get text from the image using Image Analysis OCR
+#     # ocr_result = image_analysis_client.analyze_from_url(
+#     # image_url="https://www.asianbusinesscards.com/wp-content/uploads/2019/03/chinese-business-card-translation-samples-stanford-445-sch.jpg",
+#     # visual_features=[VisualFeatures.READ])
    
-    ocr_result = image_analysis_client.analyze(
-    image_data = file,
-    visual_features=[VisualFeatures.READ])
+#     ocr_result = image_analysis_client.analyze(
+#     image_data = file,
+#     visual_features=[VisualFeatures.READ])
        
-    documents = [' '.join([line['text'] for line in ocr_result.read.blocks[0].lines])]
+#     documents = [' '.join([line['text'] for line in ocr_result.read.blocks[0].lines])]
 
-    # print(documents)
+#     # print(documents)
 
-    #Detect sensitive information in OCR output
-    # response = text_analytics_client.recognize_entities(documents, language="en")
-    # response = text_analytics_client.recognize_pii_entities(documents, language="en")
-    # result = [doc for doc in response if not doc.is_error]
+#     #Detect sensitive information in OCR output
+#     # response = text_analytics_client.recognize_entities(documents, language="en")
+#     # response = text_analytics_client.recognize_pii_entities(documents, language="en")
+#     # result = [doc for doc in response if not doc.is_error]
     
     
-    result = text_analytics_client.recognize_entities(documents)
-    result = [review for review in result if not review.is_error]
-    organization_to_reviews: typing.Dict[str, typing.List[str]] = {}
+#     result = text_analytics_client.recognize_entities(documents)
+#     result = [review for review in result if not review.is_error]
+#     organization_to_reviews: typing.Dict[str, typing.List[str]] = {}
 
-    # # Display the extracted text
-    st.subheader("Extracted Text by AZURE Document Intelligence")
-    st.write(documents)
-    text2 = ""
-    for idx, review in enumerate(result):
-        for entity in review.entities:
-            print(f"Entity '{entity.text}' has category '{entity.category}'")
-            if re.findall(r'[\u4e00-\u9fff]+',  entity.text):
-                text2 = entity.text + " (" + pinyin.get(entity.text)+ ")" + " - is a " + entity.category + "\n"
-            else:
-                text2 = entity.text + " - is a " + entity.category + "\n"
+#     # # Display the extracted text
+#     st.subheader("Extracted Text by AZURE Document Intelligence")
+#     st.write(documents)
+#     text2 = ""
+#     for idx, review in enumerate(result):
+#         for entity in review.entities:
+#             print(f"Entity '{entity.text}' has category '{entity.category}'")
+#             if re.findall(r'[\u4e00-\u9fff]+',  entity.text):
+#                 text2 = entity.text + " (" + pinyin.get(entity.text)+ ")" + " - is a " + entity.category + "\n"
+#             else:
+#                 text2 = entity.text + " - is a " + entity.category + "\n"
                   
             
-            st.write(text2)
-            text2 = "" 
-            if entity.category == 'Organization':
-                organization_to_reviews.setdefault(entity.text, [])
-                organization_to_reviews[entity.text].append(documents[idx])
+#             st.write(text2)
+#             text2 = "" 
+#             if entity.category == 'Organization':
+#                 organization_to_reviews.setdefault(entity.text, [])
+#                 organization_to_reviews[entity.text].append(documents[idx])
 
-    for organization, reviews in organization_to_reviews.items():
-        print(
-            "\n\nOrganization '{}' has left us the following review(s): {}".format(
-                organization, "\n\n".join(reviews)
-            )
-        )
+#     for organization, reviews in organization_to_reviews.items():
+#         print(
+#             "\n\nOrganization '{}' has left us the following review(s): {}".format(
+#                 organization, "\n\n".join(reviews)
+#             )
+#         )
     
 
     
-    # for doc in result:
-    #     # print("Redacted Text: {}".format(doc.redacted_text))
-    #     for entity in doc.entities:
-    #         print("Entity: {}".format(entity.text))
-    #         print("\tCategory: {}".format(entity.category))
-    #         print("\tConfidence Score: {}".format(entity.confidence_score))
-    #         print("\tOffset: {}".format(entity.offset))
-    #         print("\tLength: {}".format(entity.length))
-    #     for entity in doc.entities:
-    #         if re.findall(r'[\u4e00-\u9fff]+',  entity.text):
-    #             text2 += entity.text + "(" + pinyin.get(entity.text)+ ")" + "\n"
-    #         else:
-    #             text2 += entity.text + "\n"    
+#     # for doc in result:
+#     #     # print("Redacted Text: {}".format(doc.redacted_text))
+#     #     for entity in doc.entities:
+#     #         print("Entity: {}".format(entity.text))
+#     #         print("\tCategory: {}".format(entity.category))
+#     #         print("\tConfidence Score: {}".format(entity.confidence_score))
+#     #         print("\tOffset: {}".format(entity.offset))
+#     #         print("\tLength: {}".format(entity.length))
+#     #     for entity in doc.entities:
+#     #         if re.findall(r'[\u4e00-\u9fff]+',  entity.text):
+#     #             text2 += entity.text + "(" + pinyin.get(entity.text)+ ")" + "\n"
+#     #         else:
+#     #             text2 += entity.text + "\n"    
     
 
     
-    # download_text(text2)
-    st.image(file, caption="Uploaded Image")
+#     # download_text(text2)
+#     st.image(file, caption="Uploaded Image")
 
-title1 = '<p style="font-size: 40px;font-weight: 550;"> AZURE Document Intelligence - \nExtract Text via Images</p>'
-st.markdown(title1, unsafe_allow_html=True)
-st.image("./assets/azure-ai.png")
+# title1 = '<p style="font-size: 40px;font-weight: 550;"> AZURE Document Intelligence - \nExtract Text via Images</p>'
+# st.markdown(title1, unsafe_allow_html=True)
+# st.image("./assets/azure-ai.png")
 
-# Create a file uploader
-file1 = st.file_uploader(key = "azure-uploader", label = "Upload file", type=["jpg", "jpeg", "png"])
+# # Create a file uploader
+# file1 = st.file_uploader(key = "azure-uploader", label = "Upload file", type=["jpg", "jpeg", "png"])
 
-if st.button("Extract Text with Document Intelligence"):
-    if file1 is not None:
-        pii_recognition(file1) 
-    else:
-        st.write("Please upload a file.")
+# if st.button("Extract Text with Document Intelligence"):
+#     if file1 is not None:
+#         pii_recognition(file1) 
+#     else:
+#         st.write("Please upload a file.")
             
